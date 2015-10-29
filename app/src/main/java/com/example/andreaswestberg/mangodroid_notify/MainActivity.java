@@ -17,8 +17,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.andreaswestberg.mangodroid_notify.activity.EventDetailActivity;
+import com.example.andreaswestberg.mangodroid_notify.fragment.EventDetailFragment;
+import com.example.andreaswestberg.mangodroid_notify.fragment.EventsFragment;
+
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -41,7 +43,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements EventsFragment.OnFragmentInteractionListener {
     private static String TAG = "MainActivity";
 
     private static String keyFileName = "mangodroid.key";
@@ -49,12 +51,25 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        String content = "";
+        setContentView(R.layout.activity_listviewreportsactivity);
 
+        String content = getData();
+
+        android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        EventsFragment fragment = EventsFragment.newInstance(content);
+        fragmentTransaction.add(R.id.container_body, fragment);
+        fragmentTransaction.commit();
+
+        //getSupportFragmentManager().beginTransaction()
+          //      .add(R.id.container, new EventDetailFragment().newInstance(content)).commit();
+    }
+
+    private String getData() {
+        String content = "";
         Intent i = getIntent();
         Uri u = i.getData();
-        if(i == null) return;
+        if(i == null) return "";
         byte[] data = ReadUri(u);
         byte[] dad = getAttachmentAsBase64();
         if (data != null) {
@@ -81,9 +96,7 @@ public class MainActivity extends ActionBarActivity {
                 content = encodeStringToUTF8(data);
             }
         }
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container, new MainActivityFragment().newInstance(content)).commit();
+        return content;
     }
 
     private String encodeStringToUTF8(byte[] data) {
@@ -152,7 +165,16 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(this, "No current settings implemented.", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.generateNewKey:
-                Toast.makeText(this, "Not implemented.", Toast.LENGTH_SHORT).show();
+                SecretKey key = null;
+                try {
+                    key = getKey(keyFileName);
+                    Toast.makeText(this, "Key available.", Toast.LENGTH_SHORT).show();
+                } catch (NoSuchAlgorithmException e) {
+                    Toast.makeText(this, "Error while generating key:" + e.toString(), Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    Toast.makeText(this, "Error while generating key:" + e.toString(), Toast.LENGTH_LONG).show();
+                }
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -314,4 +336,15 @@ public class MainActivity extends ActionBarActivity {
         }
         return null;
     }
+
+    @Override
+    public void onEventSelected(String source) {
+        Toast.makeText(getApplicationContext(), "event selected: " + source, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, EventDetailActivity.class);
+        intent.putExtra("source", source);
+        startActivity(intent);
+
+        //getSupportFragmentManager().beginTransaction().replace(R.id.container_body, EventDetailFragment.newInstance(source), "Report..").commit();
+    }
+
 }

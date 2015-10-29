@@ -1,44 +1,31 @@
-package com.example.andreaswestberg.mangodroid_notify;
+package com.example.andreaswestberg.mangodroid_notify.fragment;
 
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import com.example.andreaswestberg.mangodroid_notify.R;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class EventDetailFragment extends Fragment {
 
-    public final String TAG = "MainActivityFragment";
-    public MainActivityFragment() {
+    public final String TAG = "EventDetailFragment";
+
+    private final static String ARG_SOURCE = "source";
+    public EventDetailFragment() {
     }
 
-    public static MainActivityFragment newInstance(String notification) {
-        MainActivityFragment f = new MainActivityFragment();
+    public static EventDetailFragment newInstance(String source) {
+        EventDetailFragment f = new EventDetailFragment();
         Bundle args = new Bundle();
-        args.putString("notification", notification);
+        args.putString(ARG_SOURCE, source);
         f.setArguments(args);
         return f;
     }
@@ -47,9 +34,9 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Bundle args = getArguments();
-        String notification = args.getString("notification");
+        String notification = args.getString(ARG_SOURCE);
 
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_event_detail, container, false);
         Intent intent = getActivity().getIntent();
 
         TextView notificationTV = (TextView) rootView.findViewById(R.id.notification);
